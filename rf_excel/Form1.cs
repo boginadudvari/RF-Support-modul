@@ -2,14 +2,14 @@ namespace rf_excel
 {
     public partial class Form1 : Form
     {
-        private RendezvényDatabaseContext context;
+        //private RendezvényDatabaseContext context;
         private BindingSource listBox1BindingSource = new BindingSource();
         private BindingSource listBox2BindingSource = new BindingSource();
 
         public Form1()
         {
             InitializeComponent();
-            context = new RendezvényDatabaseContext();
+            //context = new RendezvényDatabaseContext();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -27,8 +27,8 @@ namespace rf_excel
 
         private void LoadLists()
         {
-            listBox1BindingSource.DataSource = context.x.ToList();
-            listBox2BindingSource.DataSource = context.y.ToList();
+            //listBox1BindingSource.DataSource = context.x.ToList();
+            //listBox2BindingSource.DataSource = context.y.ToList();
 
             listBox1.DataSource = listBox1BindingSource;
             listBox1.DisplayMember = "valami";
@@ -39,7 +39,7 @@ namespace rf_excel
 
         private void LoadData()
         {
-            dataGridView1.DataSource = context.???.ToList();
+            //dataGridView1.DataSource = context.???.ToList();
         }
 
         private void TorlesButton_Click(object? sender, EventArgs e)
