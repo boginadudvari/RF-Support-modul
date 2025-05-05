@@ -36,6 +36,8 @@
             ujButton = new Button();
             szerkButton = new Button();
             torlesButton = new Button();
+            exportButton = new Button();
+            openFileDialog1 = new OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -105,11 +107,26 @@
             torlesButton.Text = "Törlés";
             torlesButton.UseVisualStyleBackColor = true;
             // 
+            // exportButton
+            // 
+            exportButton.Location = new Point(834, 399);
+            exportButton.Name = "exportButton";
+            exportButton.Size = new Size(129, 43);
+            exportButton.TabIndex = 8;
+            exportButton.Text = "Export";
+            exportButton.UseVisualStyleBackColor = true;
+            exportButton.Click += exportButton_Click;
+            // 
+            // openFileDialog1
+            // 
+            openFileDialog1.FileName = "openFileDialog1";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1078, 498);
+            Controls.Add(exportButton);
             Controls.Add(torlesButton);
             Controls.Add(szerkButton);
             Controls.Add(ujButton);
@@ -136,5 +153,7 @@
         private Button ujButton;
         private Button szerkButton;
         private Button torlesButton;
+        private Button exportButton;
+        private OpenFileDialog openFileDialog1;
     }
 }
