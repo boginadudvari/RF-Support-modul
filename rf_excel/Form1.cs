@@ -108,7 +108,16 @@ namespace rf_excel
 
         private void TorlesButton_Click(object? sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count == 0) return;
+            if (dataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Kérlek válassz ki egy törlendő elemet!", "Nincs kijelölés", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show("Biztosan törölni szeretnéd a kiválasztott terméket?", "Törlés megerősítése", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result != DialogResult.Yes)
+                return;
 
             int id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["Id"].Value);
             var termek = context.HccProducts.FirstOrDefault(x => x.Id == id);
@@ -118,6 +127,7 @@ namespace rf_excel
                 context.SaveChanges();
                 LoadLists();
                 LoadData();
+                MessageBox.Show("Törlés sikeres.", "Kész", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -132,12 +142,27 @@ namespace rf_excel
             {
                 foreach (var termek in lista)
                 {
+                    if (string.IsNullOrWhiteSpace(termek.Sku) ||
+                        string.IsNullOrWhiteSpace(termek.RewriteUrl) ||
+                        string.IsNullOrWhiteSpace(termek.ImageFileMedium) ||
+                        string.IsNullOrWhiteSpace(termek.ImageFileSmall))
+                    {
+                        MessageBox.Show(
+                            $"A termék nem rendelkezik minden kötelező adattal (SKU, név, URL, kép).",
+                            "Hiányzó adat",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                        return;
+                    }
+
                     var letezo = context.HccProducts.FirstOrDefault(x => x.Id == termek.Id);
                     if (letezo != null)
                     {
                         context.Entry(letezo).CurrentValues.SetValues(termek);
                     }
                 }
+
                 context.SaveChanges();
                 MessageBox.Show("Mentés kész.");
             }
@@ -145,64 +170,68 @@ namespace rf_excel
 
         private void UjButton_Click(object? sender, EventArgs e)
         {
-            var ujtermek = new HccProduct
+            using (var form = new NewProductForm())
             {
-                Bvin = Guid.NewGuid(),
-                Sku = "auto-" + Guid.NewGuid().ToString("N").Substring(0, 6),
-                RewriteUrl = "uj-termek-" + Guid.NewGuid().ToString("N").Substring(0, 4),
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    var ujtermek = new HccProduct
+                    {
+                        Bvin = Guid.NewGuid(),
+                        Sku = form.Sku,
+                        RewriteUrl = form.ProductName.ToLower().Replace(' ', '-'),
+                        SitePrice = form.SitePrice,
 
-                SitePrice = 0m,
-                Status = 1,
-                CreationDate = DateTime.UtcNow,
-                LastUpdated = DateTime.UtcNow,
-                ImageFileSmall = "no-image.png",
-                ImageFileMedium = "no-image.png",
-                PostContentColumnId = "0",
-                PreContentColumnId = "0",
-                TaxClass = "None",
-                TemplateName = "Default",
+                        Status = 1,
+                        CreationDate = DateTime.UtcNow,
+                        LastUpdated = DateTime.UtcNow,
+                        ImageFileSmall = "no-image.png",
+                        ImageFileMedium = "no-image.png",
+                        PostContentColumnId = "0",
+                        PreContentColumnId = "0",
+                        TaxClass = "None",
+                        TemplateName = "Default",
+                        ProductTypeId = null,
+                        StoreId = 1,
+                        ShippingMode = 0,
+                        ShippingWeight = 0,
+                        ShippingLength = 0,
+                        ShippingWidth = 0,
+                        ShippingHeight = 0,
+                        ShippingCharge = 1,
+                        UpchargeAmount = 3m,
+                        UpchargeUnit = "1",
+                        SiteCost = 0m,
+                        ListPrice = 0m,
+                        MinimumQty = 1,
+                        GiftWrapPrice = 0m,
+                        ExtraShipFee = 0m,
+                        CustomProperties = "",
+                        TaxExempt = 0,
+                        NonShipping = 0,
+                        ShipSeparately = 0,
+                        GiftWrapAllowed = 0,
+                        AllowReviews = true,
+                        Featured = false,
+                        IsAvailableForSale = true,
+                        IsUserPrice = false,
+                        HideQty = false,
+                        IsSearchable = true,
+                        IsBundle = false,
+                        IsGiftCard = false,
+                        IsRecurring = false,
+                        AllowUpcharge = false,
+                        RecurringInterval = 0,
+                        RecurringIntervalType = 0,
+                        OutOfStockMode = 0,
+                        ManufacturerId = null,
+                        VendorId = null
+                    };
 
-                ProductTypeId = null,
-                StoreId = 1,
-                ShippingMode = 0,
-                ShippingWeight = 0,
-                ShippingLength = 0,
-                ShippingWidth = 0,
-                ShippingHeight = 0,
-                ShippingCharge = 1,
-                UpchargeAmount = 3m,
-                UpchargeUnit = "1",
-                SiteCost = 0m,
-                ListPrice = 0m,
-                MinimumQty = 1,
-                GiftWrapPrice = 0m,
-                ExtraShipFee = 0m,
-                CustomProperties = "",
-                TaxExempt = 0,
-                NonShipping = 0,
-                ShipSeparately = 0,
-                GiftWrapAllowed = 0,
-                AllowReviews = true,
-                Featured = false,
-                IsAvailableForSale = true,
-                IsUserPrice = false,
-                HideQty = false,
-                IsSearchable = true,
-                IsBundle = false,
-                IsGiftCard = false,
-                IsRecurring = false,
-                AllowUpcharge = false,
-                RecurringInterval = 0,
-                RecurringIntervalType = 0,
-                OutOfStockMode = 0,
-
-                ManufacturerId = null,
-                VendorId = null
-            };
-
-            context.HccProducts.Add(ujtermek);
-            context.SaveChanges();
-            LoadData();
+                    context.HccProducts.Add(ujtermek);
+                    context.SaveChanges();
+                    LoadData();
+                }
+            }
         }
 
         private void TextBox2_TextChanged(object? sender, EventArgs e)
@@ -264,5 +293,7 @@ namespace rf_excel
                 }
             }
         }
+
+
     }
 }
